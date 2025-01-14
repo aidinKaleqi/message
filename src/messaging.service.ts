@@ -1,8 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Message } from '../entity/message.entity';
 import { File } from '../entity/file.entity';
+import { firstValueFrom } from 'rxjs';
+import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class MessagingService {
@@ -11,9 +17,17 @@ export class MessagingService {
     private readonly messageRepository: Repository<Message>,
     @InjectRepository(File)
     private readonly fileRepository: Repository<File>,
+    private readonly httpService: HttpService,
   ) {}
 
   async sendMessage(senderId: string, receiverId: string, content: string) {
+    if (!Boolean(senderId)) {
+      throw new UnauthorizedException('Invalid or expired token');
+    }
+    const checkReceiverI: boolean = await this.checkReceiver(receiverId);
+    if (!checkReceiverI) {
+      throw new BadRequestException('Invalid receiver');
+    }
     const message = await this.messageRepository.insert({
       content,
       senderId,
@@ -22,8 +36,21 @@ export class MessagingService {
 
     return {
       status: 'success',
-      messageId: message.identifiers[0].id
+      messageId: message.identifiers[0].id,
     };
+  }
+
+  private async checkReceiver(receiverId: string): Promise<boolean> {
+    try {
+      await firstValueFrom(
+        this.httpService.get(
+          `http://127.0.0.1:8000/api/auth/user/${receiverId}`,
+        ),
+      );
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   async getMessages(userId: number) {

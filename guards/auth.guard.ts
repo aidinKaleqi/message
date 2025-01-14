@@ -31,10 +31,12 @@ export class AuthGuard implements CanActivate {
           token,
         }),
       );
+      if (!Boolean(response.data.data.status)) {
+        throw new UnauthorizedException('verification failed');
+      }
       request.user = response.data.data;
       return true;
     } catch (error) {
-      console.log(error);
       throw new UnauthorizedException('Invalid or expired token');
     }
   }

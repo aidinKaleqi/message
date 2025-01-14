@@ -1,99 +1,255 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+#  سرویس پیام رسان 
+## پیش‌نیازها
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+برای راه‌اندازی این سرویس، باید موارد زیر نصب شده باشند:
+- [Node.js](https://nodejs.org/)
+- [NestJS CLI](https://nestjs.com/)
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## نصب
 
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
+1. مخزن پروژه را کلون کنید:
+   ```bash
+   git clone <repository_url>
+   cd <repository_directory>
+   ```
+2. وابستگی‌ها را نصب کنید:
 
 ```bash
-$ npm install
+npm install
 ```
-
-## Compile and run the project
-
+## راه‌اندازی
+برای اجرا میتوانید با توجه به محیط مورد نظر هر یک دستورات زیر را اجرا کنید:
 ```bash
-# development
-$ npm run start
+npm run start
+npm run start:dev
+npm run start:debug
+npm run start:prod
+```
+## API‌ها
 
-# watch mode
-$ npm run start:dev
+<details open>
+<summary>دریافت همه پیام‌ها</summary>
+<br>
 
-# production mode
-$ npm run start:prod
+<div dir="ltr">
+
+###  API URL
+```
+URL: api/message/user
+Method: GET
+```
+### Request Body
+ ```
+ None
+ ```
+
+### Authentication
+
+```
+Bearer Token
+Token: <token>
 ```
 
-## Run tests
+### Response
+</div>
 
-```bash
-# unit tests
-$ npm run test
+خروجی بصورت های زیر می باشد:
 
-# e2e tests
-$ npm run test:e2e
+در حالت صحیح
+<div dir="ltr">
 
-# test coverage
-$ npm run test:cov
+```json
+{
+  "data": {
+    "user_id": [
+      {
+        "id": "string",
+        "content": "string",
+        "senderId": "string",
+        "receiverId": "string",
+        "isRead": true,
+        "fileId": "string or null",
+        "createdAt": "string"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "string"
+  }
+}
+
+```
+</div>
+
+در حالت خطا
+
+<div dir="ltr">
+
+```json
+{
+   "data": {
+      "message": "string",
+      "path": "string",
+      "statusCode": "integer"
+   },
+   "meta": {
+      "requestId": "string"
+   }
+}
+```
+### Example
+
+```js
+// output: correct
+{
+   "data": 
+   {
+     "e8806898-d6a3-4799-890a-1d854624c3ca": [
+     {
+       "id": "da9f44ab-d700-4afc-bf08-8f6026acf2ce",
+       "content": "hello again",
+       "senderId": "e8806898-d6a3-4799-890a-1d854624c3ca",
+       "receiverId": "e8806898-d6a3-4799-890a-1d854624c3ca",
+       "isRead": false,
+       "fileId": null,
+       "createdAt": "2025-01-14T05:49:48.219Z"
+     },
+     {
+       "id": "9d3eaf29-6ad8-419a-8626-911d81bf2861",
+       "content": "hello again",
+       "senderId": "e8806898-d6a3-4799-890a-1d854624c3ca",
+       "receiverId": "e8806898-d6a3-4799-890a-1d854624c3ca",
+       "isRead": false,
+       "fileId": null,
+       "createdAt": "2025-01-14T05:39:38.678Z"
+     },....
+   },
+   "meta": 
+   {
+     "requestId": "bb54fb5a-0bee-4081-a323-02407253a805"
+   }
+}
+// output: wrong
+{
+   'data': 
+   {
+     'statusCode': 401,
+     'message': 'Invalid or expired token',
+     'path': '/api/message/user';
+   },
+   'meta':
+   {
+     'requestId': '5ef04555-4168-45c2-9bbb-2e7645e6006e';
+   }
+}
+```
+</div>
+</details>
+
+<details open>
+<summary>فرستادن پیام</summary>
+<br>
+
+<div dir="ltr">
+
+###  API URL
+```
+URL: api/message/send
+Method: POST
+```
+### Request Body
+</div>
+تعریف ورودی درخواست بصورت صحیح زیر بایستی انجام شود:
+
+<div dir="ltr">
+
+``` json
+{
+   "receiverId": "string",
+   "content": "string"
+}
 ```
 
-## Deployment
+### Authentication
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g mau
-$ mau deploy
+```
+Bearer Token
+Token: <token>
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
 
-## Resources
+### Response
+</div>
 
-Check out a few resources that may come in handy when working with NestJS:
+خروجی بصورت های زیر می باشد:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+در حالت صحیح
+<div dir="ltr">
 
-## Support
+```json
+{
+   "data": {
+      "message": "string",
+      "messageId": "string"
+   },
+   "meta": {
+      "requestId": "string"
+   }
+}
+```
+</div>
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+در حالت خطا
 
-## Stay in touch
+<div dir="ltr">
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```json
+{
+   "data": {
+      "message": "string",
+      "path": "string",
+      "statusCode": "integer"
+   },
+   "meta": {
+      "requestId": "string"
+   }
+}
+```
+### Example
 
-## License
+```js
+// input
+{
+  "receiverId": "e8806898-d6a3-4799-890a-1d854624c3ca",
+  "content": "hello again"
+  
+}
+// output: correct
+{
+   "data": 
+   {
+     "status": "success",
+     "messageId": "421d7acd-875f-4e0e-97de-770e642bc467"
+   },
+   "meta": 
+   {
+     "requestId": "bb54fb5a-0bee-4081-a323-02407253a805"
+   }
+}
+// output: wrong
+{
+   'data': 
+   {
+     'statusCode': 400,
+     'message': 'Invalid receiver',
+     'path': 'api/message/send';
+   },
+   'meta':
+   {
+     'requestId': '5ef04555-4168-45c2-9bbb-2e7645e6006e';
+   }
+}
+```
+</div>
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+</details>
