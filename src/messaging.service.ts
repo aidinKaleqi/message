@@ -33,16 +33,21 @@ export class MessagingService {
       .addOrderBy('message.createdAt', 'DESC') // Optionally sort messages within groups by date
       .getMany();
 
-    const groupedMessages = messages.reduce((groups, message) => {
-      const key = message.receiverId;
-      if (!groups[key]) {
-        groups[key] = [];
-      }
-      groups[key].push(message);
-      return groups;
-    }, {});
+    return this.groupMessagesByReceiver(messages);
+  }
 
-    return groupedMessages;
+  private groupMessagesByReceiver(messages: Message[]) {
+    return messages.reduce(
+      (groups, message) => {
+        const key = message.receiverId;
+        if (!groups[key]) {
+          groups[key] = [];
+        }
+        groups[key].push(message);
+        return groups;
+      },
+      {} as Record<string, Message[]>,
+    );
   }
 
   async saveFileMetadata(
@@ -61,22 +66,15 @@ export class MessagingService {
   }
 
   async getMessageWithIdAndUserId(userId: string, id: string) {
-    const result = await this.messageRepository.findOne({
+    return await this.messageRepository.findOne({
       where: [
         { fileId: id, senderId: userId },
         { fileId: id, receiverId: userId },
       ],
     });
-
-    return result;
   }
 
   async getFileMetadata(id: string) {
-    const result = await this.fileRepository.findOne({
-      where: {
-        id,
-      },
-    });
-    return result;
+    return await this.fileRepository.findOne({ where: { id } });
   }
 }

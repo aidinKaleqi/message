@@ -9,15 +9,18 @@ import {
   UseInterceptors,
   Query,
   Res,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { MessagingService } from './messaging.service';
 import { AuthGuard } from '../guards/auth.guard';
-import { diskStorage } from 'multer';
 import { Express, Response } from 'express';
 import * as path from 'path';
-import { v4 as uuidv4 } from 'uuid';
 import { TransformResponseInterceptor } from '../interceptor/transform-response.interceptor';
+import { NotificationInterceptor } from '../interceptor/notification.interceptor';
+import { fileInterceptor } from '../interceptor/file.interceptor';
+import { SendMessage } from '../dto/sendMessage.dto';
+import { SendFileDto } from '../dto/sendFile.dto';
 
 @Controller('message')
 @UseGuards(AuthGuard)
@@ -26,11 +29,9 @@ export class MessagingController {
 
   @Post('send')
   @UseInterceptors(TransformResponseInterceptor)
-  async sendMessage(
-    @Request() req,
-    @Body() body: { receiverId: string; content: string },
-  ) {
-    const senderId = req.user.id;
+  @UseInterceptors(NotificationInterceptor)
+  async sendMessage(@Request() req, @Body() body: SendMessage) {
+    const senderId = req?.user?.id ?? req?.headers?.user?.id;
     const { receiverId, content } = body;
     return this.messagingService.sendMessage(senderId, receiverId, content);
   }
@@ -43,48 +44,44 @@ export class MessagingController {
   }
 
   @Post('file')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './uploads', // Local upload folder
-        filename: (req, file, cb) => {
-          const ext = path.extname(file.originalname);
-          const filename = `${uuidv4()}${ext}`;
-          cb(null, filename);
-        },
-      }),
-    }),
-  )
+  @UseInterceptors(fileInterceptor)
   @UseInterceptors(TransformResponseInterceptor)
   async sendFile(
     @UploadedFile() file: Express.Multer.File,
-    @Body()
-    body: {
-      receiverId: string;
-    },
+    @Body() body: SendFileDto,
     @Request() req,
   ) {
     const userId = req.user.id;
     await this.messagingService.saveFileMetadata(userId, body.receiverId, file);
     return {
       status: 'success',
+      message: 'File uploaded successfully.',
     };
   }
 
   @Get('file')
   async getFile(
-    @Query() query: { id: string },
+    @Query('id') fileId: string,
     @Request() req,
     @Res() res: Response,
   ) {
     const userId = req.user.id;
+    if (!fileId) {
+      throw new HttpException('Invalid input', HttpStatus.BAD_REQUEST);
+    }
     const message = await this.messagingService.getMessageWithIdAndUserId(
       userId,
-      query.id,
+      fileId,
     );
     if (!message) {
+      throw new HttpException('Message not found', HttpStatus.NOT_FOUND);
     }
-    const file = await this.messagingService.getFileMetadata(query.id);
+    const file = await this.messagingService.getFileMetadata(fileId);
+
+    if (!file) {
+      throw new HttpException('File not found', HttpStatus.NOT_FOUND);
+    }
+
     const filePath = path.join(process.cwd(), file.path);
     return res.sendFile(filePath);
   }
