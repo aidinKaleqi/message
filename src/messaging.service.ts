@@ -20,7 +20,10 @@ export class MessagingService {
       receiverId,
     });
 
-    return message;
+    return {
+      status: 'success',
+      messageId: message.identifiers[0].id
+    };
   }
 
   async getMessages(userId: number) {
