@@ -85,4 +85,14 @@ export class MessagingController {
     const filePath = path.join(process.cwd(), file.path);
     return res.sendFile(filePath);
   }
+
+  @Post('delete')
+  async deleteMessage(
+    @Request() req,
+    @Body() body: { messageId: string; receiverId: string },
+  ) {
+    const userId = req.user.id;
+    const { messageId, receiverId } = body;
+    return this.messagingService.deleteMessage(userId, messageId, receiverId);
+  }
 }

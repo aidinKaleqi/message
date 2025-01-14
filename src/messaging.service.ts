@@ -2,6 +2,8 @@ import {
   BadRequestException,
   Injectable,
   UnauthorizedException,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -106,5 +108,33 @@ export class MessagingService {
 
   async getFileMetadata(id: string) {
     return await this.fileRepository.findOne({ where: { id } });
+  }
+
+  async deleteMessage(userId: string, messageId: string, receiverId: string) {
+    const message = await this.messageRepository.findOne({
+      where: [
+        {
+          id: messageId,
+          senderId: userId,
+          receiverId: receiverId,
+        },
+        {
+          id: messageId,
+          receiverId: userId,
+          senderId: receiverId,
+        },
+      ],
+    });
+    if (!message) {
+      throw new HttpException(
+        'message not found or you do not have permission to delete it',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    await this.messageRepository.remove(message);
+    return {
+      status: 'success',
+      message: 'Message deleted successfully',
+    };
   }
 }
